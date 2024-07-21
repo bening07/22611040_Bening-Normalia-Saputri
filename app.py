@@ -42,7 +42,7 @@ with st.expander("View detailed information"):
 # Plot distributions of numerical features
 st.header('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
-fig, axes = plt.subplots(len(numerical_features), 0.7, figsize=(10, 30))
+fig, axes = plt.subplots(len(numerical_features), 1, figsize=(10, 30))
 
 for i, col in enumerate(numerical_features):
     df[col].hist(bins=30, ax=axes[i])
