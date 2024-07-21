@@ -6,12 +6,11 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.model_selection import GridSearchCV
 
 st.set_page_config(page_title='Weather Classification', layout='wide')
 st.title('🌤️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
@@ -130,10 +129,21 @@ for model_name, metrics in results.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
 
-# Plot performance
+# Plot performance using matplotlib for better control
 results_df = pd.DataFrame(results).T
+
+# Plot vertical bar chart
 st.subheader('Model Performance Comparison')
-st.bar_chart(results_df)
+fig, ax = plt.subplots(figsize=(10, 6))
+results_df.plot(kind='bar', ax=ax, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], edgecolor='black')
+ax.set_title('Model Performance Comparison', fontsize=16)
+ax.set_xlabel('Model', fontsize=14)
+ax.set_ylabel('Score', fontsize=14)
+plt.xticks(rotation=0)
+st.pyplot(fig)
+
+# Hyperparameter tuning section
+st.subheader('Hyperparameter Tuning')
 
 # Define parameter grids for tuning
 param_grids = {
@@ -178,10 +188,11 @@ for model_name, metrics in results.items():
     for metric_name, value in metrics.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
-    
+
 # Final thoughts and conclusions
 st.subheader('Conclusions')
 st.write("""
     This application allows for the exploration, preprocessing, and evaluation of different machine learning models on weather classification data.
     The visualizations and performance metrics provide insights into the effectiveness of various models and preprocessing techniques.
+    Cross-validation ensures the robustness of the model evaluations.
 """)
