@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
@@ -26,10 +26,7 @@ df = load_data()
 
 # Display basic information
 st.sidebar.header('Dataset Information')
-buffer = []
-df.info(buf=buffer)
-s = buffer.getvalue()
-st.sidebar.text(s)
+st.sidebar.write(df.info())
 st.sidebar.write(df.describe())
 st.sidebar.write(df.head())
 
@@ -38,7 +35,7 @@ st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 for col in numerical_features:
     fig, ax = plt.subplots()
-    df[col].hist(bins=30, ax=ax, color='skyblue', edgecolor='black')
+    df[col].hist(bins=30, ax=ax, color='dark blue', edgecolor='white')
     ax.set_title(f'Distribution of {col}', fontsize=14)
     ax.set_xlabel(col, fontsize=12)
     ax.set_ylabel('Frequency', fontsize=12)
@@ -108,22 +105,25 @@ models = {
 
 results = {}
 
-# Train and evaluate models with cross-validation
-st.subheader('Model Performance with Cross-Validation')
+# Train and evaluate models
 for model_name, model in models.items():
-    accuracies = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
-    precisions = cross_val_score(model, X_train, y_train, cv=5, scoring='precision_weighted')
-    recalls = cross_val_score(model, X_train, y_train, cv=5, scoring='recall_weighted')
-    f1s = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_weighted')
-
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    
     results[model_name] = {
-        "Accuracy": accuracies.mean(),
-        "Precision": precisions.mean(),
-        "Recall": recalls.mean(),
-        "F1 Score": f1s.mean()
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1 Score": f1
     }
 
 # Display results
+st.subheader('Model Performance')
 for model_name, metrics in results.items():
     st.write(f"### {model_name}")
     for metric_name, value in metrics.items():
@@ -134,9 +134,6 @@ for model_name, metrics in results.items():
 results_df = pd.DataFrame(results).T
 st.subheader('Model Performance Comparison')
 st.bar_chart(results_df)
-
-# Hyperparameter tuning section
-st.subheader('Hyperparameter Tuning')
 
 # Define parameter grids for tuning
 param_grids = {
@@ -181,11 +178,10 @@ for model_name, metrics in results.items():
     for metric_name, value in metrics.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
-
+    
 # Final thoughts and conclusions
 st.subheader('Conclusions')
 st.write("""
     This application allows for the exploration, preprocessing, and evaluation of different machine learning models on weather classification data.
     The visualizations and performance metrics provide insights into the effectiveness of various models and preprocessing techniques.
-    Cross-validation ensures the robustness of the model evaluations.
 """)
