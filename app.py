@@ -157,30 +157,28 @@ for model_name, model in models.items():
     grid_search.fit(X_train, y_train)
     best_models[model_name] = grid_search.best_estimator_
 
-# Evaluate tuned models
+# Evaluate tuned models with cross-validation
+st.subheader('Tuned Model Performance with Cross-Validation')
 for model_name, model in best_models.items():
-    y_pred = model.predict(X_test)
-    
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average='weighted')
-    recall = recall_score(y_test, y_pred, average='weighted')
-    f1 = f1_score(y_test, y_pred, average='weighted')
-    
+    accuracies = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
+    precisions = cross_val_score(model, X_train, y_train, cv=5, scoring='precision_weighted')
+    recalls = cross_val_score(model, X_train, y_train, cv=5, scoring='recall_weighted')
+    f1s = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_weighted')
+
     results[model_name] = {
-        "Accuracy": accuracy,
-        "Precision": precision,
-        "Recall": recall,
-        "F1 Score": f1
+        "Accuracy": accuracies.mean(),
+        "Precision": precisions.mean(),
+        "Recall": recalls.mean(),
+        "F1 Score": f1s.mean()
     }
 
 # Display results of tuned models
-st.subheader('Tuned Model Performance')
 for model_name, metrics in results.items():
     st.write(f"### {model_name}")
     for metric_name, value in metrics.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
-
+    
 # Final thoughts and conclusions
 st.subheader('Conclusions')
 st.write("""
