@@ -56,8 +56,8 @@ st.pyplot(fig)
 
 # Pairplot of numerical features colored by Weather Type
 st.subheader('Pairplot of Numerical Features Colored by Weather Type')
-sns.pairplot(df, hue='Weather Type', vars=numerical_features)
-st.pyplot()
+fig = sns.pairplot(df, hue='Weather Type', vars=numerical_features)
+st.pyplot(fig)
 
 # Preprocessing section
 st.subheader('Preprocessing')
