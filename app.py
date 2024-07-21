@@ -135,7 +135,7 @@ results_df = pd.DataFrame(results).T
 # Plot performance
 st.subheader('Model Performance Comparison')
 fig, ax = plt.subplots(figsize=(10, 6))
-results_df.plot(kind='bar', ax=ax, color=['#201E43', '#134B70', '#508C9B'], edgecolor='white')
+results_df.plot(kind='bar', ax=ax, color=['#071952', '#088395', '#37B7C3', '#EBF4F6'], edgecolor='white')
 ax.set_title('Model Performance Comparison', fontsize=16)
 ax.set_ylabel('Score', fontsize=14)
 ax.set_xlabel('Model', fontsize=14)
