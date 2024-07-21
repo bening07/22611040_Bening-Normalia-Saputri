@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -129,18 +128,27 @@ for model_name, metrics in results.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
 
-# Plot performance using matplotlib for better control
+# Plot performance using Plotly for interactivity
+st.subheader('Model Performance Comparison')
 results_df = pd.DataFrame(results).T
 
-# Plot performance
-st.subheader('Model Performance Comparison')
-fig, ax = plt.subplots(figsize=(10, 6))
-results_df.plot(kind='bar', ax=ax, color=['#071952', '#088395', '#37B7C3', '#EBF4F6'], edgecolor='white')
-ax.set_title('Model Performance Comparison', fontsize=16)
-ax.set_ylabel('Score', fontsize=14)
-ax.set_xlabel('Model', fontsize=14)
-plt.xticks(rotation=0)
-st.pyplot(fig)
+fig = px.bar(
+    results_df,
+    x=results_df.index,
+    y=results_df.columns,
+    barmode='group',
+    title='Model Performance Comparison',
+    labels={'value': 'Score', 'index': 'Model'}
+)
+
+fig.update_layout(
+    xaxis_title='Model',
+    yaxis_title='Score',
+    title_text='Model Performance Comparison',
+    title_x=0.5
+)
+
+st.plotly_chart(fig)
 
 # Hyperparameter tuning section
 st.subheader('Hyperparameter Tuning')
