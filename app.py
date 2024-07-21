@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load dataset
-df = pd.read_csv('/Users/user/Documents/UAS MPML/weather_classification_data.csv')
+df = pd.read_csv('weather_classification_data.csv')
 
 st.title('Weather Classification Analysis')
 
