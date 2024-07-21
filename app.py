@@ -1,15 +1,17 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import GridSearchCV
 
 st.set_page_config(page_title='Weather Classification', layout='wide')
 st.title('🌤️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
@@ -33,7 +35,7 @@ st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 for col in numerical_features:
     fig, ax = plt.subplots()
-    df[col].hist(bins=30, ax=ax, color='#173B45', edgecolor='black')
+    df[col].hist(bins=30, ax=ax, color='#173B45', edgecolor='white')
     ax.set_title(f'Distribution of {col}', fontsize=14)
     ax.set_xlabel(col, fontsize=12)
     ax.set_ylabel('Frequency', fontsize=12)
@@ -128,30 +130,10 @@ for model_name, metrics in results.items():
         st.write(f"{metric_name}: {value:.4f}")
     st.write("\n")
 
-# Plot performance using Plotly for interactivity
-st.subheader('Model Performance Comparison')
+# Plot performance
 results_df = pd.DataFrame(results).T
-
-fig = px.bar(
-    results_df,
-    x=results_df.index,
-    y=results_df.columns,
-    barmode='group',
-    title='Model Performance Comparison',
-    labels={'value': 'Score', 'index': 'Model'}
-)
-
-fig.update_layout(
-    xaxis_title='Model',
-    yaxis_title='Score',
-    title_text='Model Performance Comparison',
-    title_x=0.5
-)
-
-st.plotly_chart(fig)
-
-# Hyperparameter tuning section
-st.subheader('Hyperparameter Tuning')
+st.subheader('Model Performance Comparison')
+st.bar_chart(results_df)
 
 # Define parameter grids for tuning
 param_grids = {
@@ -175,22 +157,24 @@ for model_name, model in models.items():
     grid_search.fit(X_train, y_train)
     best_models[model_name] = grid_search.best_estimator_
 
-# Evaluate tuned models with cross-validation
-st.subheader('Tuned Model Performance with Cross-Validation')
+# Evaluate tuned models
 for model_name, model in best_models.items():
-    accuracies = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
-    precisions = cross_val_score(model, X_train, y_train, cv=5, scoring='precision_weighted')
-    recalls = cross_val_score(model, X_train, y_train, cv=5, scoring='recall_weighted')
-    f1s = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_weighted')
-
+    y_pred = model.predict(X_test)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    
     results[model_name] = {
-        "Accuracy": accuracies.mean(),
-        "Precision": precisions.mean(),
-        "Recall": recalls.mean(),
-        "F1 Score": f1s.mean()
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1 Score": f1
     }
 
 # Display results of tuned models
+st.subheader('Tuned Model Performance')
 for model_name, metrics in results.items():
     st.write(f"### {model_name}")
     for metric_name, value in metrics.items():
@@ -202,5 +186,4 @@ st.subheader('Conclusions')
 st.write("""
     This application allows for the exploration, preprocessing, and evaluation of different machine learning models on weather classification data.
     The visualizations and performance metrics provide insights into the effectiveness of various models and preprocessing techniques.
-    Cross-validation ensures the robustness of the model evaluations.
 """)
