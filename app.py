@@ -54,11 +54,6 @@ sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', ax=ax)
 ax.set_title('Correlation Heatmap of Numerical Features')
 st.pyplot(fig)
 
-# Pairplot of numerical features colored by Weather Type
-st.subheader('Pairplot of Numerical Features Colored by Weather Type')
-fig = sns.pairplot(df, hue='Weather Type', vars=numerical_features)
-st.pyplot(fig)
-
 # Preprocessing section
 st.subheader('Preprocessing')
 
