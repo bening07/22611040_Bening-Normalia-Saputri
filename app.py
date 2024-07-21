@@ -35,7 +35,7 @@ st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 for col in numerical_features:
     fig, ax = plt.subplots()
-    df[col].hist(bins=30, ax=ax, color='skyblue', edgecolor='black')
+    df[col].hist(bins=30, ax=ax, color='dark blue', edgecolor='black')
     ax.set_title(f'Distribution of {col}', fontsize=14)
     ax.set_xlabel(col, fontsize=12)
     ax.set_ylabel('Frequency', fontsize=12)
@@ -134,9 +134,6 @@ for model_name, metrics in results.items():
 results_df = pd.DataFrame(results).T
 st.subheader('Model Performance Comparison')
 st.bar_chart(results_df)
-
-# Hyperparameter tuning section
-st.subheader('Hyperparameter Tuning')
 
 # Define parameter grids for tuning
 param_grids = {
