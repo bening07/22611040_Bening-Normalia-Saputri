@@ -34,7 +34,7 @@ st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 for col in numerical_features:
     fig, ax = plt.subplots()
-    df[col].hist(bins=30, ax=ax, color='red', edgecolor='black')
+    df[col].hist(bins=30, ax=ax, color='#173B45', edgecolor='black')
     ax.set_title(f'Distribution of {col}', fontsize=14)
     ax.set_xlabel(col, fontsize=12)
     ax.set_ylabel('Frequency', fontsize=12)
@@ -132,15 +132,12 @@ for model_name, metrics in results.items():
 # Plot performance using matplotlib for better control
 results_df = pd.DataFrame(results).T
 
-# Plot vertical bar chart
-st.subheader('Model Performance Comparison')
-fig, ax = plt.subplots(figsize=(10, 6))
-results_df.plot(kind='bar', ax=ax, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], edgecolor='black')
-ax.set_title('Model Performance Comparison', fontsize=16)
-ax.set_xlabel('Model', fontsize=14)
-ax.set_ylabel('Score', fontsize=14)
-plt.xticks(rotation=0)
-st.pyplot(fig)
+# Plot performance
+results_df.plot(kind='bar', ax=ax, color=['#201E43', '#134B70', '#508C9B', '#EEEEEE'], edgecolor='white', figsize=(10, 6))
+plt.title('Model Performance Comparison')
+plt.ylabel('Score')
+plt.xlabel('Model')
+plt.show()
 
 # Hyperparameter tuning section
 st.subheader('Hyperparameter Tuning')
