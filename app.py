@@ -13,14 +13,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV
 
-st.set_page_config(
-    page_title="Weather Classification",
-    page_icon="☁️",
-    layout="wide"
-)
-
-st.title('☁️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
-st.write("Welcome to the weather classification app. This application allows you to explore, preprocess, and evaluate various machine learning models on weather data.")
+st.set_page_config(page_title='Weather Classification', layout='wide')
+st.title('🌤️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
 
 # Load dataset
 @st.cache
@@ -31,48 +25,44 @@ def load_data():
 df = load_data()
 
 # Display basic information
-st.header('Data Overview')
-st.write("Here is the basic information about the dataset:")
-st.write(df.head())
-
-with st.expander("View detailed information"):
-    st.write(df.info())
-    st.write(df.describe())
+st.sidebar.header('Dataset Information')
+st.sidebar.write(df.info())
+st.sidebar.write(df.describe())
+st.sidebar.write(df.head())
 
 # Plot distributions of numerical features
-st.header('Distribution of Numerical Features')
+st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
-fig, axes = plt.subplots(len(numerical_features), 1, figsize=(10, 30))
-
-for i, col in enumerate(numerical_features):
-    df[col].hist(bins=30, ax=axes[i])
-    axes[i].set_title(f'Distribution of {col}')
-    axes[i].set_xlabel(col)
-    axes[i].set_ylabel('Frequency')
-
-st.pyplot(fig)
+for col in numerical_features:
+    fig, ax = plt.subplots()
+    df[col].hist(bins=30, ax=ax, color='skyblue', edgecolor='black')
+    ax.set_title(f'Distribution of {col}', fontsize=14)
+    ax.set_xlabel(col, fontsize=12)
+    ax.set_ylabel('Frequency', fontsize=12)
+    st.pyplot(fig)
 
 # Plot categorical features
-st.header('Distribution of Categorical Features')
+st.subheader('Distribution of Categorical Features')
 categorical_features = ['Cloud Cover', 'Season', 'Location', 'Weather Type']
 for col in categorical_features:
     fig, ax = plt.subplots()
-    sns.countplot(data=df, x=col, ax=ax)
-    ax.set_title(f'Distribution of {col}')
+    sns.countplot(data=df, x=col, ax=ax, palette='viridis')
+    ax.set_title(f'Distribution of {col}', fontsize=14)
+    ax.set_xlabel(col, fontsize=12)
+    ax.set_ylabel('Count', fontsize=12)
     plt.xticks(rotation=45)
     st.pyplot(fig)
 
 # Correlation heatmap for numerical features
-st.header('Correlation Heatmap of Numerical Features')
+st.subheader('Correlation Heatmap of Numerical Features')
 correlation_matrix = df[numerical_features].corr()
 fig, ax = plt.subplots(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', ax=ax)
-ax.set_title('Correlation Heatmap of Numerical Features')
+ax.set_title('Correlation Heatmap of Numerical Features', fontsize=16)
 st.pyplot(fig)
 
 # Preprocessing section
-st.header('Preprocessing')
-st.write("In this section, we preprocess the data by handling missing values and scaling features.")
+st.subheader('Preprocessing')
 
 # Identify features
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
@@ -100,7 +90,8 @@ y = df['Weather Type']
 
 X_processed = preprocessor.fit_transform(X)
 st.write('Preprocessing done!')
-st.write(f'Processed data shape: {X_processed.shape}')
+
+st.write('Processed data shape:', X_processed.shape)
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.2, random_state=42)
@@ -132,24 +123,20 @@ for model_name, model in models.items():
     }
 
 # Display results
-st.header('Model Performance')
-st.write("Here are the performance metrics for each model:")
-
+st.subheader('Model Performance')
 for model_name, metrics in results.items():
-    st.subheader(model_name)
-    st.write(f"**Accuracy:** {metrics['Accuracy']:.4f}")
-    st.write(f"**Precision:** {metrics['Precision']:.4f}")
-    st.write(f"**Recall:** {metrics['Recall']:.4f}")
-    st.write(f"**F1 Score:** {metrics['F1 Score']:.4f}")
+    st.write(f"### {model_name}")
+    for metric_name, value in metrics.items():
+        st.write(f"{metric_name}: {value:.4f}")
+    st.write("\n")
 
 # Plot performance
 results_df = pd.DataFrame(results).T
-st.header('Model Performance Comparison')
+st.subheader('Model Performance Comparison')
 st.bar_chart(results_df)
 
 # Hyperparameter tuning section
-st.header('Hyperparameter Tuning')
-st.write("In this section, we perform hyperparameter tuning to find the best model configurations.")
+st.subheader('Hyperparameter Tuning')
 
 # Define parameter grids for tuning
 param_grids = {
@@ -190,12 +177,16 @@ for model_name, model in best_models.items():
     }
 
 # Display results of tuned models
-st.header('Tuned Model Performance')
-st.write("Here are the performance metrics for the best models after hyperparameter tuning:")
-
+st.subheader('Tuned Model Performance')
 for model_name, metrics in results.items():
-    st.subheader(model_name)
-    st.write(f"**Accuracy:** {metrics['Accuracy']:.4f}")
-    st.write(f"**Precision:** {metrics['Precision']:.4f}")
-    st.write(f"**Recall:** {metrics['Recall']:.4f}")
-    st.write(f"**F1 Score:** {metrics['F1 Score']:.4f}")
+    st.write(f"### {model_name}")
+    for metric_name, value in metrics.items():
+        st.write(f"{metric_name}: {value:.4f}")
+    st.write("\n")
+
+# Final thoughts and conclusions
+st.subheader('Conclusions')
+st.write("""
+    This application allows for the exploration, preprocessing, and evaluation of different machine learning models on weather classification data.
+    The visualizations and performance metrics provide insights into the effectiveness of various models and preprocessing techniques.
+""")
