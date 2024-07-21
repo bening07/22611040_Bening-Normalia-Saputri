@@ -133,11 +133,14 @@ for model_name, metrics in results.items():
 results_df = pd.DataFrame(results).T
 
 # Plot performance
-results_df.plot(kind='bar', ax=ax, color=['#201E43', '#134B70', '#508C9B', '#EEEEEE'], edgecolor='white', figsize=(10, 6))
-plt.title('Model Performance Comparison')
-plt.ylabel('Score')
-plt.xlabel('Model')
-plt.show()
+st.subheader('Model Performance Comparison')
+fig, ax = plt.subplots(figsize=(10, 6))
+results_df.plot(kind='bar', ax=ax, color=['#201E43', '#134B70', '#508C9B'], edgecolor='white')
+ax.set_title('Model Performance Comparison', fontsize=16)
+ax.set_ylabel('Score', fontsize=14)
+ax.set_xlabel('Model', fontsize=14)
+plt.xticks(rotation=0)
+st.pyplot(fig)
 
 # Hyperparameter tuning section
 st.subheader('Hyperparameter Tuning')
