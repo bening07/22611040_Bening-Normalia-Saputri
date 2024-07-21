@@ -6,12 +6,11 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.model_selection import GridSearchCV
 
 st.set_page_config(page_title='Weather Classification', layout='wide')
 st.title('🌤️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
@@ -26,10 +25,7 @@ df = load_data()
 
 # Display basic information
 st.sidebar.header('Dataset Information')
-buffer = []
-df.info(buf=buffer)
-s = buffer.getvalue()
-st.sidebar.text(s)
+st.sidebar.write(df.info())
 st.sidebar.write(df.describe())
 st.sidebar.write(df.head())
 
@@ -38,7 +34,7 @@ st.subheader('Distribution of Numerical Features')
 numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 for col in numerical_features:
     fig, ax = plt.subplots()
-    df[col].hist(bins=30, ax=ax, color='skyblue', edgecolor='black')
+    df[col].hist(bins=30, ax=ax, color='red', edgecolor='black')
     ax.set_title(f'Distribution of {col}', fontsize=14)
     ax.set_xlabel(col, fontsize=12)
     ax.set_ylabel('Frequency', fontsize=12)
@@ -108,22 +104,25 @@ models = {
 
 results = {}
 
-# Train and evaluate models with cross-validation
-st.subheader('Model Performance with Cross-Validation')
+# Train and evaluate models
 for model_name, model in models.items():
-    accuracies = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
-    precisions = cross_val_score(model, X_train, y_train, cv=5, scoring='precision_weighted')
-    recalls = cross_val_score(model, X_train, y_train, cv=5, scoring='recall_weighted')
-    f1s = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_weighted')
-
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    
     results[model_name] = {
-        "Accuracy": accuracies.mean(),
-        "Precision": precisions.mean(),
-        "Recall": recalls.mean(),
-        "F1 Score": f1s.mean()
+        "Accuracy": accuracy,
+        "Precision": precision,
+        "Recall": recall,
+        "F1 Score": f1
     }
 
 # Display results
+st.subheader('Model Performance')
 for model_name, metrics in results.items():
     st.write(f"### {model_name}")
     for metric_name, value in metrics.items():
@@ -133,15 +132,12 @@ for model_name, metrics in results.items():
 # Plot performance using matplotlib for better control
 results_df = pd.DataFrame(results).T
 
-# Transpose the DataFrame for vertical bar chart
-results_df = results_df.T
-
+# Plot vertical bar chart
 st.subheader('Model Performance Comparison')
-
 fig, ax = plt.subplots(figsize=(10, 6))
 results_df.plot(kind='bar', ax=ax, color=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'], edgecolor='black')
 ax.set_title('Model Performance Comparison', fontsize=16)
-ax.set_xlabel('Metric', fontsize=14)
+ax.set_xlabel('Model', fontsize=14)
 ax.set_ylabel('Score', fontsize=14)
 plt.xticks(rotation=0)
 st.pyplot(fig)
