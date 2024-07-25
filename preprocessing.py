@@ -3,6 +3,11 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 # Load dataset
 df = pd.read_csv('/Users/user/Documents/UAS MPML/weather_classification_data.csv')
@@ -19,7 +24,8 @@ total_missing = missing_values.sum()
 print(f"\nTotal missing values in the dataset: {total_missing}")
 
 # Identify features
-numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)', 'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
+numerical_features = ['Temperature', 'Humidity', 'Wind Speed', 'Precipitation (%)',
+                      'Atmospheric Pressure', 'UV Index', 'Visibility (km)']
 categorical_features = ['Cloud Cover', 'Season', 'Location']
 
 # Define preprocessing for numerical and categorical features
@@ -43,15 +49,6 @@ X = df.drop(columns=['Weather Type'])
 y = df['Weather Type']
 
 X_processed = preprocessor.fit_transform(X)
-
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-# Load dataset
-df = pd.read_csv('/Users/user/Documents/UAS MPML/weather_classification_data.csv')
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.2, random_state=42)
@@ -126,25 +123,23 @@ for model_name, model in models.items():
     grid_search.fit(X_train, y_train)
     best_models[model_name] = grid_search.best_estimator_
 
-# Evaluate tuned models
+# Evaluate tuned models with cross-validation
 for model_name, model in best_models.items():
-    y_pred = model.predict(X_test)
-    
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average='weighted')
-    recall = recall_score(y_test, y_pred, average='weighted')
-    f1 = f1_score(y_test, y_pred, average='weighted')
-    
+    accuracies = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
+    precisions = cross_val_score(model, X_train, y_train, cv=5, scoring='precision_weighted')
+    recalls = cross_val_score(model, X_train, y_train, cv=5, scoring='recall_weighted')
+    f1s = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_weighted')
+
     results[model_name] = {
-        "Accuracy": accuracy,
-        "Precision": precision,
-        "Recall": recall,
-        "F1 Score": f1
+        "Accuracy": accuracies.mean(),
+        "Precision": precisions.mean(),
+        "Recall": recalls.mean(),
+        "F1 Score": f1s.mean()
     }
 
-# Display results
+# Display results of tuned models
 for model_name, metrics in results.items():
-    print(f"Model: {model_name}")
+    print(f"Model: {model_name} (Tuned)")
     for metric_name, value in metrics.items():
         print(f"{metric_name}: {value:.4f}")
     print("\n")
