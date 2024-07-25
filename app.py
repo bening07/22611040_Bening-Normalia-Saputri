@@ -13,7 +13,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 st.set_page_config(page_title='Weather Classification', layout='wide')
-st.title('🌤️ Weather Classification Data Exploration, Preprocessing, and Model Evaluation')
+st.title('🌤️ Data Exploration, Preprocessing, and Model Evaluation of Weather Type Classification Dataset')
 
 # Load dataset
 @st.cache
